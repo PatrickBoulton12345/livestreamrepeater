@@ -33,7 +33,10 @@ function buildFfmpegArgs(filePath, config) {
   }
 
   // Trim duration (input-side: endTime - startTime)
-  if (config.endTime && config.startTime != null && config.endTime > config.startTime) {
+  // Only apply when NOT looping, because -t before -i limits total input
+  // read time which prevents -stream_loop from working
+  const isLooping = config.loop || config.loopCount === -1 || config.loopCount > 1;
+  if (!isLooping && config.endTime && config.startTime != null && config.endTime > config.startTime) {
     args.push('-t', String(config.endTime - config.startTime));
   }
 
